@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller de Lengua - Colegio I.T.I Laureano Gómez Castro</title>
+    <style>
+        :root { --azul: #3498db; --amarillo: #f1c40f; --naranja: #e67e22; --verde: #2ecc71; --gris: #7f8c8d; }
+        body { font-family: 'Arial Rounded MT Bold', sans-serif; background: #fdfae6; display: flex; flex-direction: column; align-items: center; padding: 15px; margin: 0; }
+        .card { background: white; border: 3px solid var(--azul); border-radius: 20px; padding: 20px; width: 95%; max-width: 550px; margin-bottom: 25px; box-shadow: 6px 6px 0px rgba(52, 152, 219, 0.1); }
+        h2 { color: var(--naranja); font-size: 1.2rem; text-align: center; border-bottom: 2px dashed #eee; margin-top: 0; padding-bottom: 10px; }
+        p.instruccion { font-size: 13px; color: var(--gris); text-align: center; margin-bottom: 15px; }
+
+        /* 1. SOPA DE LETRAS */
+        .sopa-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; }
+        .cell { aspect-ratio: 1; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 5px; background: #fff; user-select: none; }
+        .cell.active { background: var(--amarillo); border-color: var(--naranja); }
+
+        /* 2. UNIR CON LÍNEAS */
+        .unir-container { position: relative; display: flex; justify-content: space-between; padding: 10px 0; min-height: 400px; }
+        .columna { display: flex; flex-direction: column; justify-content: space-around; z-index: 2; width: 45%; }
+        .item-izq { display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 38px; }
+        .item-der { display: flex; align-items: center; justify-content: flex-start; gap: 10px; font-size: 13px; font-weight: bold; color: #444; text-transform: uppercase; }
+        .punto { width: 16px; height: 16px; background: var(--naranja); border-radius: 50%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .punto.selected { background: var(--verde); scale: 1.3; box-shadow: 0 0 10px var(--verde); }
+        svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+        /* 3. CRUCIGRAMA (DEFINICIONES) */
+        .word-row { display: flex; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+        .num-circ { background: var(--azul); color: white; min-width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px; font-size: 11px; }
+        .cross-input { width: 28px; height: 28px; text-align: center; font-size: 16px; font-weight: bold; text-transform: uppercase; border: 2px solid #555; margin: 1px; border-radius: 4px; }
+        .hint { font-size: 12px; color: #333; margin-left: 8px; flex: 1; min-width: 200px; }
+
+        button.btn-clear { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 12px; display: block; margin: 10px auto; }
+    </style>
+</head>
+<body>
+
+    <h1 style="color:var(--azul); margin-bottom: 5px; font-size: 1.6rem;">Taller Interactivo</h1>
+    <p style="color:var(--gris); margin-bottom: 25px;">Lengua Castellana - Electiva III</p>
+
+    <div class="card">
+        <h2>1. Sopa de Letras</h2>
+        <p class="instruccion">Busca: HACHA, CARRO, BUS, CASA, GATO, FINCA</p>
+        <div class="sopa-grid" id="sopa"></div>
+    </div>
+
+    <div class="card">
+        <h2>2. Une el dibujo con su nombre</h2>
+        <p class="instruccion">Toca el punto naranja y luego su pareja</p>
+        <div class="unir-container" id="areaUnir">
+            <svg id="svgLineas"></svg>
+            <div class="columna">
+                <div class="item-izq">🚲 <div class="punto" onclick="seleccionar(this, 'izq')"></div></div>
+                <div class="item-izq">🐶 <div class="punto" onclick="seleccionar(this, 'izq')"></div></div>
+                <div class="item-izq">⚽ <div class="punto" onclick="seleccionar(this, 'izq')"></div></div>
+                <div class="item-izq">🥛 <div class="punto" onclick="seleccionar(this, 'izq')"></div></div>
+                <div class="item-izq">🏡 <div class="punto" onclick="seleccionar(this, 'izq')"></div></div>
+            </div>
+            <div class="columna">
+                <div class="item-der"><div class="punto" onclick="seleccionar(this, 'der')"></div> finca</div>
+                <div class="item-der"><div class="punto" onclick="seleccionar(this, 'der')"></div> leche</div>
+                <div class="item-der"><div class="punto" onclick="seleccionar(this, 'der')"></div> cicla</div>
+                <div class="item-der"><div class="punto" onclick="seleccionar(this, 'der')"></div> balón</div>
+                <div class="item-der"><div class="punto" onclick="seleccionar(this, 'der')"></div> perro</div>
+            </div>
+        </div>
+        <button class="btn-clear" onclick="document.getElementById('svgLineas').innerHTML = ''">Borrar líneas</button>
+    </div>
+
+    <div class="card">
+        <h2>3. Escribe la palabra correcta</h2>
+        <p class="instruccion">Lee la pista y completa los cuadros</p>
+        <div id="cross-list"></div>
+    </div>
+    
+
+    <script>
+        // --- 1. CONFIGURACIÓN SOPA DE LETRAS ---
+        const words = ["HACHA", "CARRO", "BUS", "CASA", "GATO", "FINCA"];
+        const grid = document.getElementById('sopa');
+        let cells = Array(100).fill('');
+        words.forEach(w => {
+            let start = Math.floor(Math.random() * (100 - w.length));
+            for(let i=0; i<w.length; i++) cells[start+i] = w[i];
+        });
+        for(let i=0; i<100; i++) {
+            const d = document.createElement('div');
+            d.className = 'cell';
+            d.textContent = cells[i] || "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random()*26)];
+            d.onclick = () => d.classList.toggle('active');
+            grid.appendChild(d);
+        }
+
+        // --- 2. CONFIGURACIÓN UNIR LÍNEAS ---
+        let selected = null;
+        function seleccionar(el, side) {
+            if (selected && selected.side !== side) {
+                const svg = document.getElementById('svgLineas');
+                const container = document.getElementById('areaUnir').getBoundingClientRect();
+                const b1 = selected.el.getBoundingClientRect();
+                const b2 = el.getBoundingClientRect();
+                
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", b1.left - container.left + 8);
+                line.setAttribute("y1", b1.top - container.top + 8);
+                line.setAttribute("x2", b2.left - container.left + 8);
+                line.setAttribute("y2", b2.top - container.top + 8);
+                line.setAttribute("stroke", "var(--verde)");
+                line.setAttribute("stroke-width", "4");
+                line.setAttribute("stroke-linecap", "round");
+                svg.appendChild(line);
+                
+                selected.el.classList.remove('selected');
+                selected = null;
+            } else {
+                if(selected) selected.el.classList.remove('selected');
+                el.classList.add('selected');
+                selected = { el, side };
+            }
+        }
+
+        // --- 3. CONFIGURACIÓN CRUCIGRAMA ---
+        const questions = [
+            { q: "Vehículo 4 ruedas", a: "CARRO" },
+            { q: "Transporte con pedales", a: "CICLA" },
+            { q: "Transporte grande", a: "BUS" },
+            { q: "Lugar donde viven personas", a: "CASA" },
+            { q: "Alumbra en lo oscuro", a: "LUZ" },
+            { q: "Redondo para fútbol", a: "BALON" },
+            { q: "Dice miau", a: "GATO" },
+            { q: "Dice guau", a: "PERRO" },
+            { q: "Sirve para sentarse", a: "SILLA" },
+            { q: "Bebida blanca de la vaca", a: "LECHE" }
+        ];
+
+        const list = document.getElementById('cross-list');
+        questions.forEach((item, idx) => {
+            const row = document.createElement('div');
+            row.className = 'word-row';
+            row.innerHTML = `<div class="num-circ">${idx+1}</div>`;
+            for(let i=0; i<item.a.length; i++) {
+                row.innerHTML += `<input class="cross-input" maxlength="1">`;
+            }
+            row.innerHTML += `<span class="hint">${item.q}</span>`;
+            list.appendChild(row);
+        });
+    </script>
+</body>
+</html>
